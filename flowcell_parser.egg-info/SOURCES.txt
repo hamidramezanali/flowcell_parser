@@ -1,0 +1,11 @@
+setup.py
+flowcell_parser/__init__.py
+flowcell_parser/classes.py
+flowcell_parser/db.py
+flowcell_parser.egg-info/PKG-INFO
+flowcell_parser.egg-info/SOURCES.txt
+flowcell_parser.egg-info/dependency_links.txt
+flowcell_parser.egg-info/requires.txt
+flowcell_parser.egg-info/top_level.txt
+scripts/get_flowcell_stats.py
+scripts/upload_flowcell_to_statusdb.py

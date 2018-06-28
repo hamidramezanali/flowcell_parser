@@ -20,6 +20,7 @@ class RunParser(object):
     :SampleSheetParser samplesheet: see SampleSheetParser
     :LaneBarcodeParser lanebarcodes: see LaneBarcodeParser
     """
+
     def __init__(self, path):
         if os.path.exists(path):
             self.log=logging.getLogger(__name__)
@@ -37,16 +38,19 @@ class RunParser(object):
         m       = re.match(pattern, os.path.basename(os.path.abspath(self.path)))
         fc_name = m.group(4)
         rinfo_path=os.path.join(self.path, 'RunInfo.xml')
-        rpar_path=os.path.join(self.path, 'runParameters.xml')
+        rpar_path=os.path.join(self.path, 'runParameters.xml')        
         ss_path=os.path.join(self.path, 'SampleSheet.csv')
+
 	cycle_times_log = os.path.join(self.path, 'Logs', "CycleTimes.txt")
 
+       
 	#These three are generate post-demultiplexing and could thus potentially be replaced by reading from stats.json
+
         lb_path=os.path.join(self.path, demultiplexingDir, 'Reports', 'html', fc_name, 'all', 'all', 'all', 'laneBarcode.html')
         ln_path=os.path.join(self.path, demultiplexingDir, 'Reports', 'html', fc_name, 'all', 'all', 'all', 'lane.html')
         undeterminedStatsFolder = os.path.join(self.path, demultiplexingDir,  "Stats")	
 	json_path = os.path.join(self.path, demultiplexingDir,  "Stats", "Stats.json")
-        
+
 	try:
             self.runinfo=RunInfoParser(rinfo_path)
         except OSError as e:
@@ -88,8 +92,9 @@ class RunParser(object):
             self.log.info(str(e))
             self.json_stats = None
 
-    def create_db_obj(self):
-        self.obj={}
+    def create_db_obj(self):        
+        self.obj={}        
+   
         bits=os.path.basename(os.path.abspath(self.path)).split('_')
         name="{0}_{1}".format(bits[0], bits[-1])
         self.obj['name']=name
@@ -118,8 +123,11 @@ class RunParser(object):
                 for k,v in cycle.items():
                     cycle[k] = str(v)
             self.obj['time cycles'] = self.time_cycles.cycles
+
+
         if self.json_stats:
-	    self.obj['Json_Stats'] = self.json_stats.data
+	       self.obj['Json_Stats'] = self.json_stats.data
+      
 
 
 
@@ -208,6 +216,7 @@ class SampleSheetParser(object):
     .data : a list of the values under the [Data] section. These values are stored in a dict format
     .datafields : a list of field names for the data section"""
     def __init__(self, path ):
+ 
         self.log=logging.getLogger(__name__)
         if os.path.exists(path):
             self.parse(path)
@@ -216,10 +225,11 @@ class SampleSheetParser(object):
 
 
     def parse(self, path):
+
         flag=None
         header={}
         reads=[]
-        settings=[]
+        settings={}
         csvlines=[]
         data=[]
         flag= 'data' #in case of HiSeq samplesheet only data section is present
@@ -230,6 +240,7 @@ class SampleSheetParser(object):
             lines = filter(None, (line.rstrip() for line in csvfile))
             # Now parse the file
             for line in lines:
+
                 if '[Header]' in line:
                     flag='HEADER'
                 elif '[Reads]' in line:
@@ -249,16 +260,16 @@ class SampleSheetParser(object):
                     elif flag == 'READS':
                         reads.append(tokens[0])
                     elif flag == 'SETTINGS':
-                        settings.append(tokens[0])
+                        settings[tokens[0]]=tokens[1]
                     elif flag == 'data':
                         csvlines.append(line)
+       
             reader = csv.DictReader(csvlines)
             for row in reader:
                 linedict={}
                 for field in reader.fieldnames:
                     linedict[field]=row[field]
-                data.append(linedict)
-
+                data.append(linedict)           
             self.datafields=reader.fieldnames
             self.dfield_sid=self._get_pattern_datafield(r'sample_?id')
             self.dfield_snm=self._get_pattern_datafield(r'sample_?name')
@@ -267,6 +278,7 @@ class SampleSheetParser(object):
             self.settings=settings
             self.header=header
             self.reads=reads
+
     
     def _get_pattern_datafield(self, pattern):
         for fld in self.datafields:

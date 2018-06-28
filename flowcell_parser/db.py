@@ -1,6 +1,9 @@
 import couchdb
 import yaml
 import logging
+from datetime import datetime
+from taca.utils.config import CONFIG
+
 
 log=logging.getLogger(__name__)
 
@@ -32,7 +35,7 @@ def update_doc(db, obj, over_write_db_entry=False):
         db.save(obj) 
         log.info("saving {0}".format(obj['name']))
     else:
-        log.warn("more than one row with name {0} found".format(obj['name']))
+        log.warn("more than one row with name {0} found".format(obj['name']))  
 
 #merges d2 in d1, keeps values from d1
 #taken from scilifelab
