@@ -34,9 +34,15 @@ class RunParser(object):
 
     def parse(self, demultiplexingDir='Demultiplexing'):
         """Tries to parse as many files as possible from a run folder"""
-        pattern = r'(\d{6})_([ST-]*\w+\d+)_\d+_([AB]?)([A-Z0-9\-]+)'
+        pattern = r'(\d{6,8})_([ST-]*\w+\d+)_\d+_([AB]?)([A-Z0-9\-]+)'
+        group_no = 4
         m       = re.match(pattern, os.path.basename(os.path.abspath(self.path)))
-        fc_name = m.group(4)
+        #if the instrument is iseq so flowcell name may start with an A,B
+        if len(m.group(1))==8:
+            pattern = r'(\d{6,8})_([ST-]*\w+\d+)_\d+_([A-Z0-9\-]+)'
+            m       = re.match(pattern, os.path.basename(os.path.abspath(self.path)))
+            group_no = 3
+        fc_name = m.group(group_no)
         rinfo_path=os.path.join(self.path, 'RunInfo.xml')
         rpar_path=os.path.join(self.path, 'runParameters.xml')        
         ss_path=os.path.join(self.path, 'SampleSheet.csv')
